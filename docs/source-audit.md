@@ -41,6 +41,23 @@ declared inheritance and paths. No repository was assumed to exist; each was che
 | Vendor blobs | `TheMuppets/proprietary_vendor_google_tegu@lineage-24.0` — `6840f69264a3191a3be83816b950ecec4c4d88f1`; `tegu-vendor.mk` verified (adds `vendor/google/tegu` namespace and copy rules) |
 | LineageOS wiki | `https://wiki.lineageos.org/devices/tegu/build/` reachable; states 64 GB RAM and 400 GB storage for `lineage-21`+ |
 
+## Session 2 verification (2026-11-06): deeper facts
+
+| Check | Result |
+| --- | --- |
+| Board config location | `device/google/tegu/tegu/BoardConfig.mk` (no top-level `BoardConfig.mk`); discovered by `build/make`'s `find -L device -maxdepth 4 -path '*/tegu/BoardConfig.mk'` — verified in both LineageOS `lineage-24.0` and RisingOS `seventeen` `core/board_config.mk` |
+| Board config contents | `TARGET_BOARD_INFO_FILE := $(DEVICE_PATH)/board-info.txt` (`require board=tegu`), `TARGET_BOOTLOADER_BOARD_NAME := tegu`, `TARGET_SCREEN_DENSITY := 420`, `BOOT_SECURITY_PATCH := 2026-10-05`, includes `zumapro/BoardConfig-common.mk` and `wifi/BoardConfig-wifi.mk` |
+| `TARGET_DEVICE_DIR` | resolves to `device/google/tegu/tegu`, **not** `device/google/tegu` |
+| Kernel repo contents | `tegu-kernels@lineage-24.0` has only 8 tracked files under `6.1/`: module load/blocklist lists + `init.insmod.tegu.cfg`; **no `boot.img`, `dtbo.img`, `Image`, or `*.ko`** |
+| Vendor blob contents | 3074 files; no boot/kernel artifacts. `proprietary-firmware.txt` lists `abl, bl1, bl2, bl31, gcf, gsa, gsa_bl1, ldfw, modem, pbl, tzsw` only |
+| Board config kernel expectation | `TARGET_NO_KERNEL := true`, `BOARD_PREBUILT_BOOTIMAGE := $(wildcard $(TARGET_KERNEL_DIR)/boot.img)`, `BOARD_PREBUILT_DTBOIMAGE := $(TARGET_KERNEL_DIR)/dtbo.img`, `KERNEL_MODULES := $(wildcard $(KERNEL_MODULE_DIR)/*.ko)` |
+| Extraction flow | tegu `extract-files.py` is factory-image/firmware based (`extract_pixel_factory_image`, `extract_pixel_firmware`); wiki requires a device or factory image |
+| Rising packaging | `bacon` builds `RisingOS-$(RISING_BUILD_VERSION)-ota.zip` + `.sha256sum`, copies OTA JSON into `vendor/official_devices`; `RISING_BUILD_VERSION = 9-<date>-<PACKAGE_TYPE>-<BUILDTYPE>-tegu` |
+| Rising package identity for this product | `VANILLA` (GMS off) and `COMMUNITY` (tegu not listed) → `RisingOS-9-…-VANILLA-COMMUNITY-tegu-ota.zip` |
+| Rising framework forks | `frameworks/base` → `android_frameworks_base-new`, `packages/apps/Settings` → `android_packages_apps_Settings`, `packages/apps/Launcher3` → `android_packages_apps_Launcher3`, remote `rising` @ `seventeen` |
+
+**Correction:** session 1 described the kernel as "prebuilt kernel binaries from `tegu-kernels`". That is now known to be wrong: only module metadata ships there. `kernel/README.md`, `config/device.json` and `docs/integration-review.md` were corrected; risk **R1** tracks the unresolved boot/kernel artifact sourcing.
+
 ## Negative results (recorded so they are not retried blindly)
 
 | Probed | Result |

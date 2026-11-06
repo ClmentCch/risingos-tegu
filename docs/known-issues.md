@@ -11,6 +11,8 @@ but never executed, **OPEN** = known limitation.
 | 2 | RisingOS manifest consumed from a branch | **OPEN** | `repo init -b seventeen` is a moving reference. For byte-reproducible builds, snapshot the manifest at `4197174e43f84deaadccfd8b980aeb73fb47d84d`. |
 | 3 | `vendor/lineage` not SHA-pinned | **OPEN** | Defined by the Rising manifest at `refs/heads/seventeen`; a local SHA pin would conflict. Upstream branch movement can change the build. |
 | 4 | No verified `rising_tegu` build exists upstream | **OPEN** | tegu is not in RisingOS `official_devices`; this integration is first-of-its-kind and may surface real compile errors (missing overlays, package conflicts) on the first build. Those must be fixed honestly, not papered over. |
+| 4b | Kernel/boot artifacts missing from pinned repos (R1) | **OPEN — HIGH** | `tegu-kernels@lineage-24.0` ships only 8 files (module lists + `init.insmod.tegu.cfg`), but `BoardConfig-common.mk` expects `boot.img`, `dtbo.img` and `*.ko` under `TARGET_KERNEL_DIR`; neither it nor the vendor blob repo contains them. Whether a clean sync can produce a bootable `boot.img` is unproven. Resolve before trusting any build; see `docs/integration-review.md` §2. |
+| 4c | Board config is not at `device/google/tegu/BoardConfig.mk` | **DOCUMENTED** | It lives at `device/google/tegu/tegu/BoardConfig.mk`; `TARGET_DEVICE_DIR` is therefore `device/google/tegu/tegu`. `verify.sh` now checks this layout. |
 
 ## Hardware / functional
 

@@ -89,6 +89,32 @@ Copies the installable ZIP plus `boot.img`, `recovery.img`, `vendor_boot.img`, `
 to `output/<UTC stamp>/`, writes `metadata.json` and `checksums.sha256`, and **fails** if no
 ZIP exists. Large artifacts are git-ignored; publish them as GitHub Release assets.
 
+## 7b. Build in CI on a self-hosted runner
+
+GitHub-hosted runners cannot build Android 17 (16 GB RAM / 14 GB disk).
+`.github/workflows/build.yml` targets a self-hosted runner labelled
+`android-builder-64g` and performs: host audit → setup → sync → verify → build → package →
+artifact upload, with a GitHub Release only on `v*` tags.
+
+```bash
+# on the build machine
+./config.sh --url https://github.com/ClmentCch/risingos-tegu \
+            --token <runner-token> \
+            --labels self-hosted,linux,x64,android-builder-64g
+./run.sh
+```
+
+Repository variables `ANDROID_ROOT` and `CCACHE_DIR` are optional (defaults
+`/mnt/android/risingos-9-tegu` and `/mnt/ccache`). The workflow has **never been executed** —
+no runner exists yet.
+
+## 7c. Kernel/boot artifact caveat (R1)
+
+`tegu-kernels` ships only module load lists; `BoardConfig-common.mk` expects `boot.img`,
+`dtbo.img` and `*.ko` in `TARGET_KERNEL_DIR`. Check this immediately after sync (see
+`docs/integration-review.md` §2). If the payload is absent, a clean tree is not buildable and
+the extraction/population procedure must be added before any build is claimed.
+
 ## 8. Reproducing a specific build
 
 - Device/kernel/vendor/Rising-vendor projects: pinned to full SHAs in
@@ -112,6 +138,8 @@ ZIP exists. Large artifacts are git-ignored; publish them as GitHub Release asse
 | `lunch: rising_tegu is not a valid target` | `vendor/rising-tegu` missing from the tree; re-run `sync.sh`. |
 | `vendor/rising/config/version.mk: No such file` | `vendor/rising` not synced or wrong branch. |
 | `cat: vendor/official_devices/OTA/risingOS.devices: No such file` | Upstream `vendor/official_devices` project missing; the build still proceeds and classifies as COMMUNITY, but re-sync to silence it. |
+| `boot.img` built but has no kernel / `BOARD_PREBUILT_BOOTIMAGE` empty | Kernel payload missing from `device/google/tegu-kernels/6.1` (risk R1). Do not flash the result. |
+| `repo status` shows `vendor/official_devices` modified after `bacon` | Expected: Rising's `otapackage.mk` writes an OTA JSON there. Do not commit it. |
 | ZIP absent after a successful `mka bacon` | Check the target used and `out/target/product/tegu/`; `package.sh` refuses to fake it. |
 
 ## 10. Clean rebuild

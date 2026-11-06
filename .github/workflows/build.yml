@@ -1,0 +1,117 @@
+name: Build RisingOS 9 tegu
+
+# Android 17 cannot be built on GitHub-hosted runners (16 GB RAM, 14 GB disk).
+# This workflow targets a self-hosted runner labelled with the resources the
+# LineageOS wiki requires: 64 GB RAM and 400 GB+ free disk.
+#
+# Register a runner with both labels:
+#   ./config.sh --labels self-hosted,linux,x64,android-builder-64g
+#
+# Nothing is published automatically: artifacts are uploaded for inspection and
+# only a tagged release creates a GitHub Release.
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Build target"
+        required: false
+        default: bacon
+      lunch:
+        description: "Lunch target"
+        required: false
+        default: rising_tegu-userdebug
+      skip_sync:
+        description: "Reuse the existing source tree (no repo sync)"
+        type: boolean
+        required: false
+        default: false
+  push:
+    tags:
+      - "v*"
+
+concurrency:
+  group: risingos-tegu-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build (self-hosted, 64 GB)
+    runs-on: [self-hosted, linux, x64, android-builder-64g]
+    timeout-minutes: 480
+
+    env:
+      ANDROID_ROOT: ${{ vars.ANDROID_ROOT || '/mnt/android/risingos-9-tegu' }}
+      CCACHE_DIR: ${{ vars.CCACHE_DIR || '/mnt/ccache' }}
+      CCACHE_SIZE: 50G
+      USE_CCACHE: "1"
+      CCACHE_COMPRESS: "1"
+      LUNCH_TARGET: ${{ github.event.inputs.lunch || 'rising_tegu-userdebug' }}
+      BUILD_TARGET: ${{ github.event.inputs.target || 'bacon' }}
+
+    steps:
+      - name: Check out project
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Host audit
+        run: |
+          echo "CPUs: $(nproc)"
+          free -h
+          df -h "$ANDROID_ROOT" 2>/dev/null || df -h .
+          ./scripts/setup.sh --check-only
+
+      - name: Prepare tree and sync
+        if: ${{ github.event.inputs.skip_sync != 'true' }}
+        run: |
+          ./scripts/setup.sh
+          ./scripts/sync.sh --jobs "$(nproc)"
+
+      - name: Verify integration
+        run: ./scripts/verify.sh --workspace "$ANDROID_ROOT" --lunch
+
+      - name: Build
+        run: |
+          ./scripts/build.sh \
+            --workspace "$ANDROID_ROOT" \
+            --lunch "$LUNCH_TARGET" \
+            --target "$BUILD_TARGET" \
+            --jobs "$(nproc)"
+
+      - name: Package artifacts
+        run: ./scripts/package.sh --workspace "$ANDROID_ROOT"
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs-${{ github.run_id }}
+          path: logs/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload ROM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: risingos-9-tegu-${{ github.run_id }}
+          path: output/**/*
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish GitHub Release (tags only)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: RisingOS 9 tegu ${{ github.ref_name }}
+          body: |
+            Unofficial community build of RisingOS Revived 9 for the Google Pixel 9a
+            (`tegu`). Not an official RisingOS release.
+
+            Built from `${{ github.sha }}`. Verify `checksums.sha256` before flashing.
+            See `docs/installation.md` and `docs/known-issues.md` in the repository.
+          files: output/**/*
+          fail_on_unmatched_files: true

@@ -24,7 +24,8 @@ This repository is the **project hub**, not a copy of the Android tree. It conta
 | `scripts/` | Reproducible `setup.sh`, `sync.sh`, `verify.sh`, `build.sh`, `package.sh`. |
 | `device/`, `kernel/` | Documentation of the upstream device/kernel inputs, pinned revisions and why no files are copied here. |
 | `patches/` | Patch policy and any downstream patches (currently none required — see `patches/README.md`). |
-| `docs/` | Architecture, source audit, compatibility matrix, build guide, installation, known issues, session status. |
+| `docs/` | Architecture, source audit, compatibility matrix, build guide, installation, known issues, integration review/risk register, session status. |
+| `.github/workflows/build.yml` | Self-hosted 64 GB CI build with artifact upload and tag-only Release publishing (never run yet). |
 | `output/`, `logs/` | Runtime artifact and log directories (contents are git-ignored). |
 
 The full Android source tree (~100 GB+) is **never** committed here. It is fetched with
@@ -71,6 +72,8 @@ cd risingos-tegu
 ```
 
 Full instructions: [docs/build-guide.md](docs/build-guide.md).
+Pre-build risk register (read before the first compile):
+[docs/integration-review.md](docs/integration-review.md).
 
 ## Licensing and proprietary files
 

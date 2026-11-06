@@ -114,12 +114,47 @@ need_file device/google/tegu/lineage_tegu.mk
 need_file device/google/tegu/device-tegu.mk
 need_file device/google/tegu/AndroidProducts.mk
 need_file vendor/google/tegu/tegu-vendor.mk
+# Board config lives one level deeper than device/google/tegu; build/make finds it with
+# `find -L device -maxdepth 4 -path '*/tegu/BoardConfig.mk'`.
+need_file device/google/tegu/tegu/BoardConfig.mk
+need_file device/google/tegu/tegu/product.prop
+need_file device/google/tegu/tegu/vendor.prop
+need_file device/google/tegu/board-info.txt
+need_grep 'include device/google/zumapro/BoardConfig-common.mk' device/google/tegu/tegu/BoardConfig.mk "board config includes zumapro common"
+need_grep 'BOOT_SECURITY_PATCH' device/google/tegu/tegu/BoardConfig.mk "board config declares security patch"
+
+printf '\n%s\n' '--- kernel / boot inputs (risk R1) ---'
+KERNEL_INPUT_DIR="device/google/tegu-kernels/6.1"
+if [ -d "$ANDROID_ROOT/$KERNEL_INPUT_DIR" ]; then
+    ok "present: $KERNEL_INPUT_DIR"
+    for art in boot.img dtbo.img; do
+        if [ -e "$ANDROID_ROOT/$KERNEL_INPUT_DIR/$art" ]; then
+            ok "kernel input present: $KERNEL_INPUT_DIR/$art"
+        else
+            note "missing $KERNEL_INPUT_DIR/$art — BOARD_PREBUILT_* expects it; resolve R1 before trusting a build"
+        fi
+    done
+    if compgen -G "$ANDROID_ROOT/$KERNEL_INPUT_DIR/*.ko" >/dev/null; then
+        ok "kernel modules present in $KERNEL_INPUT_DIR"
+    else
+        note "no *.ko modules in $KERNEL_INPUT_DIR — KERNEL_MODULES expands empty; resolve R1"
+    fi
+    if [ -d "$ANDROID_ROOT/$KERNEL_INPUT_DIR/16kb" ]; then
+        ok "16 KB kernel directory present"
+    else
+        note "no 16kb/ kernel directory — build uses the 4 KB path"
+    fi
+else
+    bad "missing $KERNEL_INPUT_DIR"
+fi
 
 printf '\n%s\n' '--- RisingOS layer ---'
 need_file vendor/rising/config/rising.mk
 need_file vendor/rising/config/version.mk
 need_file vendor/lineage/config/common_full_phone.mk
 need_grep 'RISING_VERSION := 9' vendor/rising/config/version.mk "Rising version is 9"
+need_grep 'RISING_BUILD_VERSION' vendor/rising/config/version.mk "Rising build version computed (zip naming)"
+need_grep 'RISING_TARGET_PACKAGE .*= .*RisingOS-' vendor/rising/build/tasks/otapackage.mk "Rising bacon package name matches package.sh glob"
 
 printf '\n%s\n' '--- product integration ---'
 need_file vendor/rising-tegu/AndroidProducts.mk

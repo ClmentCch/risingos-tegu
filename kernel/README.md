@@ -1,9 +1,6 @@
 # kernel/ — Tensor G4 kernel integration
 
-## What is used
-
-The Pixel 9a uses a **prebuilt** Linux 6.1 kernel from the LineageOS kernel repository,
-not a kernel compiled from this project:
+## What is actually in the pinned kernel repository
 
 | Item | Value |
 | --- | --- |
@@ -11,37 +8,83 @@ not a kernel compiled from this project:
 | Branch | `lineage-24.0` |
 | Pinned SHA | `06318d991a4a688cf281d69815143a8370e503b4` |
 | Tree path | `device/google/tegu-kernels` |
-| Kernel dir used by build | `device/google/tegu-kernels/6.1` |
+| Kernel dir used by build | `device/google/tegu-kernels/6.1` (`TARGET_KERNEL_DIR`) |
 | Declared in | `device/google/tegu/device-tegu.mk` |
 | Platform kernel source ref | `google/gs-6.1` (`TARGET_KERNEL_PLATFORM_SOURCE`) |
-| Linux version | 6.1 (`TARGET_LINUX_KERNEL_VERSION := 6.1`) |
-| 16 KB page option | `PRODUCT_16K_DEVELOPER_OPTION := true` when `TARGET_BOOTS_16K != true` |
+| Linux version | 6.1 |
 
-The prebuilt artifacts (`Image`, `Image.lz4`, DTB/DTBO fragments and the vendor ramdisk
-inputs) are consumed by the Android build when generating `boot.img` / `vendor_boot.img`.
-The kernel is **not** rebuilt from source in this project, and no kernel patches are
-carried here.
+The repository contains **8 tracked files, all under `6.1/`**: `init.insmod.tegu.cfg`,
+`modules.load`, `system_dlkm.modules.load`, `system_dlkm.modules.blocklist`,
+`vendor_dlkm.modules.load`, `vendor_dlkm.modules.blocklist`, `vendor_kernel_boot.modules.load`,
+plus `.gitignore`.
+
+It contains **no `boot.img`, no `dtbo.img`, no `Image`/`Image.lz4` and no `*.ko` modules.**
+The vendor blob repository does not contain them either (verified: the firmware lists cover
+`abl/bl1/bl2/bl31/gcf/gsa/ldfw/modem/pbl/tzsw` only).
+
+## What the build expects
+
+From `device/google/zumapro/BoardConfig-common.mk` (included by tegu's board config):
+
+```make
+TARGET_NO_KERNEL := true
+BOARD_USES_GENERIC_KERNEL_IMAGE := true
+BOARD_PREBUILT_BOOTIMAGE := $(wildcard $(TARGET_KERNEL_DIR)/boot.img)
+BOARD_PREBUILT_DTBIMAGE_DIR := $(TARGET_KERNEL_DIR)
+BOARD_PREBUILT_DTBOIMAGE := $(BOARD_PREBUILT_DTBIMAGE_DIR)/dtbo.img
+KERNEL_MODULES := $(wildcard $(KERNEL_MODULE_DIR)/*.ko)
+```
+
+So the Android build consumes a prebuilt boot image, DTBO and kernel modules from
+`device/google/tegu-kernels/6.1`. With the pinned repositories as-is, those files are
+missing and the wildcards expand to nothing.
+
+## Status: open verification item (high risk)
+
+It is **not yet established** whether a clean `repo sync` of the pinned tree can produce a
+bootable `boot.img`. Two possibilities remain:
+
+1. the kernel payload is populated by a step not visible in the pinned makefiles
+   (factory-image/device extraction), or
+2. a clean sync is insufficient for a bootable build.
+
+The tegu `extract-files.py` is factory-image based (`extract_pixel_factory_image`,
+`extract_pixel_firmware`), and the LineageOS wiki instructs running extraction from a device
+or factory image. This is exactly what must be checked first on a synced tree:
+
+```bash
+ls -la device/google/tegu-kernels/6.1
+ls -la device/google/tegu/tegu/          # BoardConfig.mk, product.prop, extract-files.py
+grep -n "BOOTIMAGE\|DTBOIMAGE\|KERNEL_MODULES" device/google/zumapro/BoardConfig-common.mk
+```
+
+Then after a build:
+
+```bash
+ls -la out/target/product/tegu/boot.img out/target/product/tegu/dtbo.img \
+       out/target/product/tegu/vendor_boot.img
+```
+
+`scripts/verify.sh` now reports missing kernel inputs explicitly. Treat R1 in
+`docs/integration-review.md` as the first thing to resolve in the next build session.
 
 ## Why no kernel source tree is pinned
 
-- LineageOS ships the tegu kernel as prebuilt binaries in `tegu-kernels`, which is what
-  the device tree references. Rebuilding from `google/gs-6.1` would require the proprietary
-  Google toolchain and configs and is not part of the LineageOS tegu build path.
-- Adding an unpinned kernel source tree would break reproducibility without changing the
-  output.
+- LineageOS's tegu build path is prebuilt-kernel based (`TARGET_NO_KERNEL := true`), not a
+  from-source kleaf build; no `TARGET_KERNEL_SOURCE`/`TARGET_KERNEL_CONFIG` is declared.
+- Rebuilding the Tensor G4 kernel would require Google's kernel sources, toolchain and
+  configs outside the LineageOS tegu build path, and would not improve reproducibility of
+  the documented build.
 
-## Kernel-side requirements on the device
+## Device-side requirements
 
-- Bootloader must be unlocked (`fastboot flashing unlock`).
-- The device must run firmware matching or newer than the LineageOS tegu baseline
-  (`CP3A.261005.005`, Android 17) so the prebuilt kernel, DTBO and vendor HALs match.
-- Verified boot / AVB: an unofficial build cannot pass Google's hardware-backed attestation.
-  Some banking/DRM apps will refuse to run. This is expected and documented in
-  `docs/known-issues.md`.
+- Bootloader unlocked.
+- Stock firmware at least as new as `CP3A.261005.005` / `BOOT_SECURITY_PATCH 2026-10-05`.
+- Unofficial builds cannot pass Google hardware-backed attestation (banking/DRM caveat).
 
 ## If a custom kernel is added later
 
 1. Pin the kernel source repo to a full SHA in `manifest/risingos-9-tegu.xml`.
-2. Set `TARGET_KERNEL_SOURCE`/`TARGET_KERNEL_CONFIG` in a `patches/device/` patch and
-   document the change.
-3. Re-run `scripts/verify.sh` and record results in `docs/SESSION_STATUS.md`.
+2. Set `TARGET_KERNEL_SOURCE`/`TARGET_KERNEL_CONFIG` via a documented patch, and add the
+   prebuilt artifacts or build rules to `TARGET_KERNEL_DIR`.
+3. Re-run `scripts/verify.sh`, record results in `docs/SESSION_STATUS.md` and update R1.

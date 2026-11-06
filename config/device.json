@@ -27,7 +27,19 @@
     "platform_source": "google/gs-6.1",
     "prebuilt": true,
     "supports_16k_pages": true,
-    "boots_16k": false
+    "boots_16k": false,
+    "verified_branch_contents": [
+      "6.1/init.insmod.tegu.cfg",
+      "6.1/modules.load",
+      "6.1/system_dlkm.modules.load",
+      "6.1/system_dlkm.modules.blocklist",
+      "6.1/vendor_dlkm.modules.load",
+      "6.1/vendor_dlkm.modules.blocklist",
+      "6.1/vendor_kernel_boot.modules.load"
+    ],
+    "binaries_present_in_pinned_repos": false,
+    "expected_build_inputs": ["boot.img", "dtbo.img", "*.ko modules"],
+    "open_verification_item": "R1: BoardConfig expects boot.img/dtbo.img/*.ko under TARGET_KERNEL_DIR, but neither tegu-kernels nor the vendor blob repository provides them. Whether a clean sync yields a bootable boot.img must be verified on a synced tree (see docs/integration-review.md)."
   },
   "device_trees": [
     {
@@ -70,6 +82,14 @@
   "recovery": {
     "type": "LineageOS recovery",
     "init_rc": "device/google/tegu/recovery/init.recovery.device.rc"
+  },
+  "board_config": {
+    "path": "device/google/tegu/tegu/BoardConfig.mk",
+    "discovered_by": "build/make/core/board_config.mk find -L device -maxdepth 4 -path '*/tegu/BoardConfig.mk'",
+    "target_device_dir": "device/google/tegu/tegu",
+    "boot_security_patch": "2026-10-05",
+    "screen_density": 420,
+    "board_info": "require board=tegu"
   },
   "notes": [
     "Pixel 8a (akita) sources must never be used as a substitute.",
