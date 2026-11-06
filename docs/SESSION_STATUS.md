@@ -36,7 +36,7 @@ integration, working build tooling and complete documentation. No ROM was compil
 | --- | --- |
 | `main` | untouched upstream/default branch (`README.md` stub, `Prompt.md`) |
 | `freebuff-base` | scaffolding |
-| `risingos-9-tegu` | **this project** — all files listed above |
+| `risingos-9-tegu` | **this project** — all files listed above; push succeeded (`4d80a9c`) |
 
 ## Source revisions (pinned)
 
@@ -65,9 +65,9 @@ docs/SESSION_STATUS.md  output/README.md  logs/README.md
 
 ## Last successful GitHub commit
 
-Recorded after the push performed at the end of this session (see the repository's branch
-`risingos-9-tegu`; the commit that adds these files). If this file and the branch disagree,
-the branch is authoritative.
+`4d80a9c` on `risingos-9-tegu` (pushed 2026-11-06): 31 files, 2338 insertions — project
+manifest, `rising_tegu` product, configs, scripts, documentation. If this file and the
+branch disagree, the branch is authoritative.
 
 ## Build status
 
