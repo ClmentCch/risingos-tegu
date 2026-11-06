@@ -45,7 +45,8 @@ build scripts, four configs, initial documentation. Push `4d80a9c`, handoff `ecf
 | `freebuff-base` | scaffolding |
 | `risingos-9-tegu` | **project branch**; session 1 pushed `4d80a9c` / `ecf96d4`, session 2 adds the integration review, corrections and CI workflow |
 
-Authoritative latest commit: run `git log -1 --oneline origin/risingos-9-tegu`.
+Last successful GitHub commit: `c09ddac` (session 2) on `risingos-9-tegu`; session 1
+commits were `4d80a9c` and `ecf96d4`. Authoritative tip: `git log -1 --oneline origin/risingos-9-tegu`.
 
 ## Source revisions (pinned, unchanged)
 
