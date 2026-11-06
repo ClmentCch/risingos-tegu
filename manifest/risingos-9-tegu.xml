@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  RisingOS 9 tegu — repo local manifest
+  Installed by scripts/setup.sh to .repo/local_manifests/risingos-9-tegu.xml
+
+  Initialize the tree with the RisingOS manifest first:
+    repo init -u https://github.com/RisingOS-Revived/android -b seventeen
+  with git-lfs enabled (the RisingOS README requires that flag).
+
+  Projects below are pinned to full 40-character SHAs verified at project creation on
+  2026-11-06. Branch names are the tracking refs documented in config/sources.json.
+-->
+<manifest>
+
+  <remote name="rising-gh" fetch="https://github.com" />
+  <remote name="themuppets" fetch="https://github.com/TheMuppets" />
+
+  <!-- ===== Device foundation: Google Pixel 9a (tegu) ===== -->
+
+  <!-- Pixel 9a device tree. Exposes aosp_tegu / lineage_tegu products.
+       lineage.dependencies resolves zumapro + tegu-kernels as well; they are pinned
+       explicitly here so a sync cannot drift. -->
+  <project path="device/google/tegu"
+           name="LineageOS/android_device_google_tegu"
+           revision="0df2d90b48370375f154ac7cf0bee96d1f372074"
+           remote="rising-gh"
+           groups="pdk" />
+
+  <!-- Tensor G4 common platform tree (device/google/zumapro/common.mk).
+       Required by device-tegu.mk's `include device/google/zumapro/common.mk`. -->
+  <project path="device/google/zumapro"
+           name="LineageOS/android_device_google_zumapro"
+           revision="c03df81e8fed84aeb4f2d26e9cef2ea5762d7c3f"
+           remote="rising-gh"
+           groups="pdk" />
+
+  <!-- Prebuilt Linux 6.1 kernel for tegu.
+       device-tegu.mk: TARGET_KERNEL_DIR := device/google/tegu-kernels/6.1 -->
+  <project path="device/google/tegu-kernels"
+           name="LineageOS/android_device_google_tegu-kernels"
+           revision="06318d991a4a688cf281d69815143a8370e503b4"
+           remote="rising-gh"
+           groups="pdk" />
+
+  <!-- ===== Proprietary vendor blobs (not redistributed in this repository) ===== -->
+
+  <!-- Mounted at vendor/google/tegu; inherited via tegu-vendor.mk.
+       Extracted from the device's own firmware by TheMuppets; keep in sync with the
+       LineageOS lineage-24.0 branch. -->
+  <project path="vendor/google/tegu"
+           name="proprietary_vendor_google_tegu"
+           revision="6840f69264a3191a3be83816b950ecec4c4d88f1"
+           remote="themuppets"
+           groups="vendor"
+           clone-depth="1" />
+
+  <!-- ===== RisingOS 9 tegu integration (this project) ===== -->
+
+  <!-- Product makefiles. build/make scans vendor/*/*/AndroidProducts.mk, so
+       `rising_tegu` is lunchable as soon as this project is checked out. -->
+  <project path="vendor/rising-tegu"
+           name="ClmentCch/risingos-tegu"
+           revision="risingos-9-tegu"
+           remote="rising-gh"
+           groups="pdk" />
+
+  <!-- ===== Upstream RisingOS components that the base manifest leaves floating ===== -->
+
+  <!-- Rising vendor layer: vendor/rising/config/{rising,version,properties,packages}.mk
+       Inherited explicitly by vendor/rising-tegu/rising_tegu.mk. -->
+  <project path="vendor/rising"
+           name="RisingOS-Revived/android_vendor_rising"
+           revision="4197174e43f84deaadccfd8b980aeb73fb47d84d"
+           remote="rising-gh"
+           groups="pdk" />
+
+  <!-- RisingOS Lineage-compatible vendor config (common_full_phone.mk etc.).
+       Inherited by device/google/tegu/lineage_tegu.mk. -->
+  <project path="vendor/lineage"
+           name="RisingOS-Revived/android_vendor_lineage"
+           revision="refs/heads/seventeen"
+           remote="rising-gh"
+           groups="pdk" />
+
+  <!-- Remove projects that must never be used for this device if a stray manifest adds
+       them. It is easier to detect than to remove silently, so scripts/verify.sh fails if
+       akita hardware sources are present. -->
+
+</manifest>

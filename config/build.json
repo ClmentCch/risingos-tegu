@@ -1,0 +1,55 @@
+{
+  "lunch_target": "rising_tegu-userdebug",
+  "build_target": "bacon",
+  "android_root_default": "~/android/risingos-9-tegu",
+  "requirements": {
+    "min_ram_gb": 64,
+    "hard_min_ram_gb": 32,
+    "min_free_disk_gb": 400,
+    "min_sync_free_disk_gb": 120,
+    "recommended_cpus": 16,
+    "os": "Ubuntu 22.04/24.04 x86_64 (or equivalent)",
+    "filesystem": "case-sensitive, ext4/xfs/btrfs"
+  },
+  "host_packages": [
+    "bc", "bison", "build-essential", "ccache", "curl", "flex", "g++-multilib",
+    "gcc-multilib", "git", "git-lfs", "gnupg", "gperf", "imagemagick",
+    "lib32readline-dev", "lib32z1-dev", "libelf-dev", "liblz4-tool", "libsdl1.2-dev",
+    "libssl-dev", "libxml2", "libxml2-utils", "lzop", "pngcrush", "rsync",
+    "schedtool", "squashfs-tools", "xsltproc", "zip", "zlib1g-dev", "python3",
+    "openjdk-21-jdk"
+  ],
+  "environment": {
+    "USE_CCACHE": 1,
+    "CCACHE_COMPRESS": 1,
+    "CCACHE_SIZE": "50G",
+    "LC_ALL": "C",
+    "JACK_SERVER_VM_ARGUMENTS": "-Dfile.encoding=UTF-8 -XX:+TieredCompilation"
+  },
+  "build_flags": {
+    "WITH_GMS": false,
+    "WITH_MICROG": false,
+    "TARGET_ENABLE_BLUR": true,
+    "PRODUCT_NO_CAMERA": false,
+    "RISING_MAINTAINER": "ClmentCch"
+  },
+  "clean_build_command": "make clean && make clobber",
+  "artifacts": {
+    "package_glob": ["RisingOS-*.zip", "lineage-*.zip"],
+    "images": ["boot.img", "recovery.img", "vendor_boot.img", "dtbo.img", "super_empty.img"],
+    "output_dir": "out/target/product/tegu",
+    "package_dir": "output/<UTC timestamp>"
+  },
+  "known_environment_limits": {
+    "observed_host": {
+      "captured_at_utc": "2026-11-06",
+      "cpus": 2,
+      "ram_gb": 3.8,
+      "free_disk_gb": 9.7,
+      "os": "Ubuntu 24.04.5 LTS x86_64 (KVM guest)",
+      "tools_present": ["git", "python3", "make", "gcc", "curl", "wget", "unzip", "zip", "rsync"],
+      "tools_missing": ["repo", "java", "ccache", "bc", "bison", "flex", "schedtool"]
+    },
+    "verdict": "Compilation is impossible on this host: RAM is ~17x and disk ~40x below the requirement. The project therefore ships configuration, manifests, scripts and documentation, not a ROM."
+  }
+}

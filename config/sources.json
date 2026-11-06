@@ -1,0 +1,103 @@
+{
+  "verified_at_utc": "2026-11-06",
+  "verification_method": "git ls-remote --heads / refs and GitHub REST API (repository metadata), plus raw retrieval of the referenced makefiles and manifests",
+  "manifest": {
+    "url": "https://github.com/RisingOS-Revived/android",
+    "branch": "seventeen",
+    "pinned_sha": "4197174e43f84deaadccfd8b980aeb73fb47d84d",
+    "init_command": "repo init -u https://github.com/RisingOS-Revived/android -b seventeen --git-lfs",
+    "default_revision": "refs/heads/lineage-24.0",
+    "aosp_tag": "refs/tags/android-17.0.0_r1",
+    "includes": ["snippets/rising.xml", "snippets/extra.xml", "snippets/lineage.xml"]
+  },
+  "projects": [
+    {
+      "path": "device/google/tegu",
+      "url": "https://github.com/LineageOS/android_device_google_tegu",
+      "revision": "lineage-24.0",
+      "pinned_sha": "0df2d90b48370375f154ac7cf0bee96d1f372074",
+      "role": "Pixel 9a device tree",
+      "license": "Apache-2.0",
+      "verify": true
+    },
+    {
+      "path": "device/google/zumapro",
+      "url": "https://github.com/LineageOS/android_device_google_zumapro",
+      "revision": "lineage-24.0",
+      "pinned_sha": "c03df81e8fed84aeb4f2d26e9cef2ea5762d7c3f",
+      "role": "Tensor G4 common platform tree",
+      "license": "Apache-2.0",
+      "verify": true
+    },
+    {
+      "path": "device/google/tegu-kernels",
+      "url": "https://github.com/LineageOS/android_device_google_tegu-kernels",
+      "revision": "lineage-24.0",
+      "pinned_sha": "06318d991a4a688cf281d69815143a8370e503b4",
+      "role": "Prebuilt Linux 6.1 kernel for tegu",
+      "license": "see repository (prebuilt kernel binaries)",
+      "verify": true
+    },
+    {
+      "path": "vendor/google/tegu",
+      "url": "https://github.com/TheMuppets/proprietary_vendor_google_tegu",
+      "revision": "lineage-24.0",
+      "pinned_sha": "6840f69264a3191a3be83816b950ecec4c4d88f1",
+      "role": "Proprietary blobs extracted from Pixel 9a firmware",
+      "license": "proprietary; not redistributed by this project",
+      "verify": true
+    },
+    {
+      "path": "vendor/rising",
+      "url": "https://github.com/RisingOS-Revived/android_vendor_rising",
+      "revision": "seventeen",
+      "pinned_sha": "4197174e43f84deaadccfd8b980aeb73fb47d84d",
+      "role": "RisingOS vendor layer; config/rising.mk, version.mk, overlays, prebuilts",
+      "license": "Apache-2.0",
+      "verify": true
+    },
+    {
+      "path": "vendor/lineage",
+      "url": "https://github.com/RisingOS-Revived/android_vendor_lineage",
+      "revision": "refs/heads/seventeen",
+      "pinned_sha": null,
+      "role": "RisingOS Lineage-compatible vendor config inherited by lineage_tegu.mk",
+      "license": "Apache-2.0",
+      "verify": true
+    },
+    {
+      "path": "vendor/rising-tegu",
+      "url": "https://github.com/ClmentCch/risingos-tegu",
+      "revision": "risingos-9-tegu",
+      "pinned_sha": null,
+      "role": "This project: rising_tegu product makefiles",
+      "license": "Apache-2.0",
+      "verify": false
+    },
+    {
+      "path": "vendor/official_devices",
+      "url": "https://github.com/RisingOS-Revived/official_devices",
+      "revision": "fifteen",
+      "pinned_sha": null,
+      "role": "Upstream-provided device/maintainer lists consumed by vendor/rising/config/version.mk",
+      "license": "Apache-2.0",
+      "verify": false,
+      "note": "Pinned by the RisingOS manifest itself; tegu is absent from the list, so builds are classified COMMUNITY."
+    }
+  ],
+  "explicitly_rejected_sources": [
+    {
+      "repository": "LineageOS/android_device_google_akita",
+      "reason": "Pixel 8a hardware; incompatible with Tensor G4 tegu. Never substitute."
+    },
+    {
+      "repository": "RisingOS-Revived builds for other Pixel devices",
+      "reason": "Useful for integration patterns only; their hardware configuration must not be copied."
+    }
+  ],
+  "caveats": [
+    "vendor/lineage is tracked to refs/heads/seventeen because the RisingOS manifest defines it there; pinning a SHA in the local manifest would require a sync after every upstream change. Reproducibility caveat documented.",
+    "Proprietary blob repositories are populated from device firmware; their contents depend on the extracted firmware version and are not authored by this project.",
+    "The RisingOS manifest pins vendor/official_devices to branch fifteen; this is upstream behaviour, not a project choice."
+  ]
+}

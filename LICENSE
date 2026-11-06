@@ -1,0 +1,37 @@
+Apache License
+Version 2.0, January 2004
+https://www.apache.org/licenses/LICENSE-2.0
+
+Copyright 2026 ClmentCch and contributors
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use the files
+authored in this repository except in compliance with the License. You may obtain a copy of
+the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the
+License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+either express or implied. See the License for the specific language governing permissions
+and limitations under the License.
+
+--------------------------------------------------------------------------
+Scope and third-party components
+--------------------------------------------------------------------------
+This license covers the original files authored in this repository: the project manifest,
+product makefiles, scripts, configuration and documentation.
+
+It does NOT cover and does NOT relicense:
+
+- RisingOS Revived components (Apache-2.0 and other upstream licenses), fetched from
+  https://github.com/RisingOS-Revived.
+- LineageOS device/kernel sources (Apache-2.0, GPL-2.0 for kernel binaries' sources),
+  fetched from https://github.com/LineageOS.
+- Proprietary Pixel 9a firmware blobs, fetched from
+  https://github.com/TheMuppets/proprietary_vendor_google_tegu. These are not
+  redistributed by this repository; builders are responsible for compliance.
+- Google applications, which this project does not bundle or redistribute.
+
+"RisingOS", "LineageOS", "Android" and "Pixel" are trademarks of their respective owners.
+This is an unofficial community project and is not endorsed by or affiliated with any of
+them. No warranty of any kind is provided; flashing software can brick or void a device.

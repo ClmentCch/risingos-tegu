@@ -1,0 +1,43 @@
+{
+  "project_name": "RisingOS 9 tegu",
+  "rom_name": "RisingOS Revived 9",
+  "rom_flavor": "CinnamonBun",
+  "rom_codename": "elefthería",
+  "rising_version": 9,
+  "build_type": "UNOFFICIAL/COMMUNITY",
+  "official": false,
+  "android_version": "17",
+  "aosp_tag": "android-17.0.0_r1",
+  "rising_branch": "seventeen",
+  "lineage_branch": "lineage-24.0",
+  "maintainer": "ClmentCch",
+  "repository": {
+    "url": "https://github.com/ClmentCch/risingos-tegu",
+    "branch": "risingos-9-tegu",
+    "default_branch": "main"
+  },
+  "product": {
+    "name": "rising_tegu",
+    "lunch_target": "rising_tegu-userdebug",
+    "lunch_choices": [
+      "rising_tegu-userdebug",
+      "rising_tegu-user",
+      "rising_tegu-eng"
+    ],
+    "build_target": "bacon"
+  },
+  "policy": {
+    "with_gms": false,
+    "with_microg": false,
+    "gms_rationale": "Google apps may not be redistributed; vanilla build keeps the project legally distributable.",
+    "fabricate_results": false,
+    "flash_device": false
+  },
+  "license": "Apache-2.0",
+  "status": {
+    "phase": "3-device-integration-and-tooling",
+    "compiled": false,
+    "hardware_tested": false,
+    "blocker": "Cloud build host is below Android 17 build requirements (see config/build.json)."
+  }
+}

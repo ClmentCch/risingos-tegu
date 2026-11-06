@@ -1,0 +1,78 @@
+{
+  "codename": "tegu",
+  "model": "Pixel 9a",
+  "marketing_name": "Google Pixel 9a",
+  "manufacturer": "Google",
+  "brand": "google",
+  "soc": "Google Tensor G4",
+  "platform": "zumapro",
+  "architecture": "arm64",
+  "architecture_variants": ["arm64-v8a", "armeabi-v7a", "armeabi"],
+  "target_board": "tegu",
+  "shipping_api_level": 35,
+  "launch_android_version": "15",
+  "target_android_version": "17",
+  "display": {
+    "width": 1080,
+    "height": 2424,
+    "density": "420dpi (inherited from device tree overlays)"
+  },
+  "kernel": {
+    "version": "6.1",
+    "source_repository": "LineageOS/android_device_google_tegu-kernels",
+    "branch": "lineage-24.0",
+    "pinned_sha": "06318d991a4a688cf281d69815143a8370e503b4",
+    "tree_path": "device/google/tegu-kernels",
+    "kernel_dir": "device/google/tegu-kernels/6.1",
+    "platform_source": "google/gs-6.1",
+    "prebuilt": true,
+    "supports_16k_pages": true,
+    "boots_16k": false
+  },
+  "device_trees": [
+    {
+      "path": "device/google/tegu",
+      "repository": "LineageOS/android_device_google_tegu",
+      "branch": "lineage-24.0",
+      "pinned_sha": "0df2d90b48370375f154ac7cf0bee96d1f372074",
+      "role": "Pixel 9a product, overlays, recovery config, build fingerprint"
+    },
+    {
+      "path": "device/google/zumapro",
+      "repository": "LineageOS/android_device_google_zumapro",
+      "branch": "lineage-24.0",
+      "pinned_sha": "c03df81e8fed84aeb4f2d26e9cef2ea5762d7c3f",
+      "role": "Tensor G4 common platform (common.mk, HALs, sepolicy)"
+    }
+  ],
+  "vendor": {
+    "path": "vendor/google/tegu",
+    "repository": "TheMuppets/proprietary_vendor_google_tegu",
+    "branch": "lineage-24.0",
+    "pinned_sha": "6840f69264a3191a3be83816b950ecec4c4d88f1",
+    "makefile": "vendor/google/tegu/tegu-vendor.mk",
+    "redistributed_in_project": false
+  },
+  "firmware": {
+    "baseline_build_fingerprint": "google/tegu/tegu:17/CP3A.261005.005/16271449:user/release-keys",
+    "baseline_build_id": "CP3A.261005.005",
+    "requirement": "Device must be on stock Android 17 firmware at least this new before installing an unofficial build.",
+    "source": "device/google/tegu/lineage_tegu.mk PRODUCT_BUILD_PROP_OVERRIDES (lineage-24.0)"
+  },
+  "partitions": {
+    "boot": "boot.img",
+    "recovery": "recovery.img",
+    "vendor_boot": "vendor_boot.img",
+    "dtbo": "dtbo.img",
+    "dynamic": ["system", "system_ext", "product", "vendor", "odm"],
+    "a_b": true
+  },
+  "recovery": {
+    "type": "LineageOS recovery",
+    "init_rc": "device/google/tegu/recovery/init.recovery.device.rc"
+  },
+  "notes": [
+    "Pixel 8a (akita) sources must never be used as a substitute.",
+    "The device tree declares PRODUCT_16K_DEVELOPER_OPTION when not booting 16K kernels."
+  ]
+}

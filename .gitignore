@@ -1,0 +1,25 @@
+# Local research scratch (cloned upstreams used for auditing)
+.research/
+
+# Build artifacts and logs are runtime data, never committed
+output/*
+!output/README.md
+logs/*
+!logs/README.md
+
+# Android build products / packages
+*.zip
+*.img
+*.img.gz
+*.tar.md5
+*.log
+*.sha256
+!config/*.sha256
+
+# Signing material must never enter the repository
+*.pk8
+*.pem
+*.x509.pem
+keys/
+.env
+.dev.vars
